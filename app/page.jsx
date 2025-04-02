@@ -1,3 +1,5 @@
+import Feed from "@components/Feed";
+
 const Home = () => {
   return (
     <section className="w-full flex-center felx-col">
@@ -11,7 +13,7 @@ const Home = () => {
           Explore a vast library of AI-generated prompts, curated by our community of creators and enthusiasts.
         </p>
 
-         {/* Feed */}
+         <Feed />
 
     </section>
   )
