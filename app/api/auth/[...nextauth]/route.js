@@ -1,16 +1,14 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 
-import User from "@models/user"
-import { connectToDB } from "@utils/database"
+import User from "@/models/user";
+import { connectToDB } from "@/utils/database";
 
 const handler = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      // You can add this if you're using a custom callback URL
-      // callbackUrl: 'http://localhost:3000/api/auth/callback/google'
     }),
   ],
   callbacks: {
