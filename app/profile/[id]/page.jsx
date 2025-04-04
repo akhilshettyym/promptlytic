@@ -1,35 +1,55 @@
-"use client"
+import Prompt from "@models/prompt"
+import { connectToDB } from "@utils/database"
 
-import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
+export const GET = async (request, { params }) => {
+  try {
+    await connectToDB()
 
-import Profile from "@components/Profile"
+    const prompt = await Prompt.findById(params.id).populate("creator")
+    if (!prompt) return new Response("Prompt Not Found", { status: 404 })
 
-const UserProfile = ({ params }) => {
-  const searchParams = useSearchParams()
-  const userName = searchParams.get("name")
-
-  const [userPosts, setUserPosts] = useState([])
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await fetch(`/api/users/${params?.id}/posts`)
-      const data = await response.json()
-
-      setUserPosts(data)
-    }
-
-    if (params?.id) fetchPosts()
-  }, [params.id])
-
-  return (
-    <Profile
-      name={userName}
-      desc={`Welcome to ${userName}'s personalized profile page. Explore ${userName}'s exceptional prompts and be inspired by the power of their imagination`}
-      data={userPosts}
-    />
-  )
+    return new Response(JSON.stringify(prompt), { status: 200 })
+  } catch (error) {
+    return new Response("Internal Server Error", { status: 500 })
+  }
 }
 
-export default UserProfile
+export const PATCH = async (request, { params }) => {
+  const { prompt, tag } = await request.json()
 
+  try {
+    await connectToDB()
+
+    const existingPrompt = await Prompt.findById(params.id)
+
+    if (!existingPrompt) {
+      return new Response("Prompt not found", { status: 404 })
+    }
+
+    existingPrompt.prompt = prompt
+    existingPrompt.tag = tag
+
+    await existingPrompt.save()
+
+    return new Response("Successfully updated the Prompts", { status: 200 })
+  } catch (error) {
+    return new Response("Error Updating Prompt", { status: 500 })
+  }
+}
+
+export const DELETE = async (request, { params }) => {
+  try {
+    await connectToDB()
+
+    const deletedPrompt = await Prompt.findByIdAndDelete(params.id)
+
+    if (!deletedPrompt) {
+      return new Response("Prompt not found", { status: 404 })
+    }
+
+    return new Response(JSON.stringify({ success: true, message: "Prompt deleted successfully" }), { status: 200 })
+  } catch (error) {
+    console.error("Error deleting prompt:", error)
+    return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500 })
+  }
+}

@@ -5,6 +5,11 @@ import Provider from "@components/Provider"
 export const metadata = {
   title: "Promptlytic",
   description: "Discover & share AI Prompts",
+  icons: {
+    icon: "/assets/images/logo.svg",
+    shortcut: "/assets/images/logo.svg",
+    apple: "/assets/images/logo.svg",
+  },
 }
 
 const RootLayout = ({ children }) => {

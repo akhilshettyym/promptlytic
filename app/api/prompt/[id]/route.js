@@ -1,5 +1,6 @@
 import Prompt from "@models/prompt"
 import { connectToDB } from "@utils/database"
+import { NextResponse } from "next/server"
 
 export const GET = async (request, { params }) => {
   try {
@@ -20,14 +21,12 @@ export const PATCH = async (request, { params }) => {
   try {
     await connectToDB()
 
-    // Find the existing prompt by ID
     const existingPrompt = await Prompt.findById(params.id)
 
     if (!existingPrompt) {
       return new Response("Prompt not found", { status: 404 })
     }
 
-    // Update the prompt with new data
     existingPrompt.prompt = prompt
     existingPrompt.tag = tag
 
@@ -43,11 +42,20 @@ export const DELETE = async (request, { params }) => {
   try {
     await connectToDB()
 
-    // Find the prompt by ID and remove it
-    await Prompt.findByIdAndRemove(params.id)
+    console.log("Attempting to delete prompt with ID:", params.id)
 
-    return new Response("Prompt deleted successfully", { status: 200 })
+    const deletedPrompt = await Prompt.findOneAndDelete({ _id: params.id })
+
+    if (!deletedPrompt) {
+      console.log("Prompt not found for deletion")
+      return NextResponse.json({ success: false, message: "Prompt not found" }, { status: 404 })
+    }
+
+    console.log("Prompt deleted successfully:", deletedPrompt._id)
+
+    return NextResponse.json({ success: true, message: "Prompt deleted successfully" }, { status: 200 })
   } catch (error) {
-    return new Response("Error deleting prompt", { status: 500 })
+    console.error("Error deleting prompt:", error)
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 })
   }
 }
